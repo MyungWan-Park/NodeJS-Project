@@ -1,6 +1,6 @@
 var http = require('http');
-var url = require('url');
 var fs = require('fs');
+var url = require('url');
 
 function templateHTML(title,list,body){
 
@@ -18,62 +18,60 @@ function templateHTML(title,list,body){
   </body>
   </html>
   `;
+}
 
-};
-
-function templateLIst(dirlist){
-
-  var list = `<ol>`;
+function templateList(filelist){
+  
+  var list = `<ul>`;
   var i = 0;
-  while(i < dirlist.length){
-    list = list + `<li><a href="/?id=${dirlist[i]}">${dirlist[i]}</a></li>`
-    i = i+1;
+  while(i < filelist.length){
+    
+    list = list + `<li><a href="/?id=${filelist[i]}">${filelist[i]}</a></li>`
+    i = i+1
   }
-
-  list = list + `</ol>`;
+  list = list + `</ul>`;
   return list
 }
 
 var app = http.createServer(function(request,response){
     var _url = request.url;
     var queryData = url.parse(_url, true).query;
-
     var pathname = url.parse(_url, true).pathname;
 
     if(pathname === '/'){
       if(queryData.id === undefined){
-
-        fs.readdir('./data', function(error, dirlist){
+        fs.readdir('./data',function(error, filelist){
           
-          var title = 'Welcome';
-          var description = 'Hello NodeJs!';
-          var list = templateLIst(dirlist);
+          var title = "Welcome";
+          var description = "Hello Node JS"
+          var list = templateList(filelist);
           var template = templateHTML(title,list,`<h2>${title}</h2><p>${description}</p>`);
-
           response.writeHead(200);
           response.end(template);
-        })
 
 
-      }else{
-
-        fs.readdir('./data', function(error, dirlist){
-
-          fs.readFile(`data/${queryData.id}`,'utf8', function(err, description) {
+        });
           
-          var list = templateLIst(dirlist);
+      }else{
+        fs.readdir('./data',function(error, filelist){
+
+        fs.readFile(`data/${queryData.id}`, 'utf8', function(err,description){
+          
+          var list = templateList(filelist);
           var title = queryData.id;
           var template = templateHTML(title,list,`<h2>${title}</h2><p>${description}</p>`);
-
-          response.writeHead(200);
-          response.end(template);
-        })
-      })
+        response.writeHead(200);
+        response.end(template);
+    
+        });
+     
+      });
       }
+
     }else{
       response.writeHead(404);
-      response.end("not found");
+      response.end('Not Found');
     }
-
+ 
 });
 app.listen(3000);
